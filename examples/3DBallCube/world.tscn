@@ -1,0 +1,108 @@
+[gd_scene load_steps=14 format=3 uid="uid://dx6pfx0lregud"]
+
+[ext_resource type="Script" path="res://AIController.gd" id="2_c2sxk"]
+[ext_resource type="Script" path="res://addons/godot_ml_agents/manager.gd" id="3_jwf2a"]
+[ext_resource type="Script" path="res://Ball.gd" id="3_uhn27"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_5kcvu"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_xbhmr"]
+sky_material = SubResource("ProceduralSkyMaterial_5kcvu")
+
+[sub_resource type="Environment" id="Environment_5s3x7"]
+background_mode = 2
+sky = SubResource("Sky_xbhmr")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="GDScript" id="GDScript_rw14d"]
+script/source = "extends CharacterBody3D
+# Rotation speed in radians per second
+var rotation_speed: float = 1.5
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	var rotation_input = Vector3()
+
+	# Capture input for rotation
+	if Input.is_action_pressed(\"ui_up\"):  # W key
+		rotation_input.x -= rotation_speed * delta
+	if Input.is_action_pressed(\"ui_down\"):  # S key
+		rotation_input.x += rotation_speed * delta
+	if Input.is_action_pressed(\"ui_left\"):  # A key
+		rotation_input.y -= rotation_speed * delta
+	if Input.is_action_pressed(\"ui_right\"):  # D key
+		rotation_input.y += rotation_speed * delta
+
+	# Apply rotation to the character
+	rotate_x(rotation_input.x)
+	rotate_y(rotation_input.y)
+"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nb1sm"]
+albedo_color = Color(0.539136, 0.794369, 0.886646, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_i7oh3"]
+material = SubResource("StandardMaterial3D_nb1sm")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qiokl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qxfni"]
+albedo_color = Color(0.934559, 0.647719, 0.177125, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_jl1f4"]
+material = SubResource("StandardMaterial3D_qxfni")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_alin0"]
+
+[node name="World" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_5s3x7")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.955931, 0.29359, 0, -0.29359, 0.955931, 0, 2.44629, 3.93358)
+
+[node name="Cube" type="CharacterBody3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+floor_stop_on_slope = false
+platform_floor_layers = 4294967040
+script = SubResource("GDScript_rw14d")
+metadata/_edit_group_ = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Cube"]
+mesh = SubResource("BoxMesh_i7oh3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cube"]
+shape = SubResource("BoxShape3D_qiokl")
+
+[node name="AIController" type="Node" parent="Cube"]
+script = ExtResource("2_c2sxk")
+max_num_steps = 10000
+wait_frames = 1
+continuous_space_size = 2
+observation_space_size = 8
+
+[node name="Ball" type="CharacterBody3D" parent="."]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -0.00620222, 0.963466, 0)
+floor_stop_on_slope = false
+platform_floor_layers = 4294967040
+script = ExtResource("3_uhn27")
+metadata/_edit_group_ = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ball"]
+mesh = SubResource("SphereMesh_jl1f4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ball"]
+shape = SubResource("SphereShape3D_alin0")
+
+[node name="AgentsManager" type="Node" parent="."]
+process_mode = 4
+script = ExtResource("3_jwf2a")
+wait_frames = 1
