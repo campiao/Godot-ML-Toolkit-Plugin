@@ -1,6 +1,6 @@
 # Godot ML Toolkit Plugin
 
-The Godot ML Toolkit Plugin contains the Godot plugin for the Godot ML Toolkit library found in 
+The Godot ML Toolkit Plugin contains the Godot plugin for the Godot ML Toolkit library found in [here](https://github.com/campiao/godot_ml_agents_toolkit)
 
 Godot ML Toolkit is an open-source project that allows video game developers to integrate intelligent agents into their games.
 The main features are:
